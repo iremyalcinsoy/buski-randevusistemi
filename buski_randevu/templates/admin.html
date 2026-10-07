@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Paneli - BUSKİ Randevu Sistemi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Arka Plan ve Gece Teması Efekti */
+        body {
+            background-color: #0b1329;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Arka Planda Hareketli / Parıltılı Ağ Efekti */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 30%, #1a2b5c 0%, #0b1329 70%),
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="10" cy="10" r="1.5" fill="rgba(255,255,255,0.15)"/><line x1="10" y1="10" x2="50" y2="50" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/></svg>');
+            z-index: -1;
+        }
+
+        /* Cam Efektli Kart */
+        .glass-card {
+            background: rgba(18, 28, 58, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            color: #ffffff !important;
+        }
+
+        /* Form Elemanları ve Select Kutusu */
+        .form-select-custom {
+            background-color: rgba(11, 19, 41, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            font-size: 0.88rem;
+            border-radius: 6px;
+            padding: 4px 8px;
+        }
+        .form-select-custom:focus {
+            background-color: #0b1329;
+            color: #fff;
+            border-color: #38bdf8;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+        }
+        .form-select-custom option {
+            background-color: #0b1329;
+            color: #ffffff;
+        }
+
+        /* NET VE OKUNABİLİR TABLO STİLLERİ */
+        .table-custom {
+            color: #ffffff !important;
+            margin-bottom: 0;
+        }
+        .table-custom th {
+            background: rgba(255, 255, 255, 0.08);
+            color: #38bdf8 !important; /* Parlak Mavi Başlıklar */
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.8px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+            padding: 16px 12px;
+        }
+        .table-custom td {
+            background: transparent;
+            color: #f1f5f9 !important; /* Kristal Beyazı Metinler */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 14px 12px;
+            vertical-align: middle;
+            font-size: 0.92rem;
+        }
+        .table-custom tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Yüksek Kontrastlı Rozetler (Badges) */
+        .badge-type {
+            background: rgba(13, 202, 240, 0.2);
+            color: #38bdf8 !important;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            font-weight: 600;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+        }
+        .badge-bekliyor {
+            background: #d97706;
+            color: #ffffff !important;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+        .badge-geldi {
+            background: #15803d;
+            color: #ffffff !important;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+        .badge-iptal {
+            background: #b91c1c;
+            color: #ffffff !important;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+
+        /* Kaydet Butonu */
+        .btn-save-custom {
+            background: linear-gradient(45deg, #0d6efd, #0dcaf0);
+            border: none;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 5px 14px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-save-custom:hover {
+            opacity: 0.9;
+            box-shadow: 0 0 10px rgba(13, 202, 240, 0.5);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid py-4 px-md-5">
+    
+    <!-- Üst Bar / Başlık -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
+        <div>
+            <h2 class="fw-bold text-info mb-1">⚙️ BUSKİ Admin Yönetim Paneli</h2>
+            <p class="text-secondary small m-0">Tüm randevu kayıtlarını anlık takip edin ve durumlarını güncelleyin.</p>
+        </div>
+        <a href="/admin-logout" class="btn btn-outline-danger btn-sm px-3 shadow-sm fw-semibold">🔒 Çıkış Yap</a>
+    </div>
+
+    <!-- FLASH MESAJLARI (Yeşil Arka Planı Engelleyen Sabit Tasarım) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-dismissible fade show glass-card mb-4" role="alert" style="background-color: rgba(18, 28, 58, 0.95) !important; color: #ffffff !important; border: 1px solid rgba(56, 189, 248, 0.3) !important;">
+            {{ message }}
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- TÜM RANDEVU KAYITLARI TABLOSU -->
+    <div class="card glass-card shadow-lg overflow-hidden">
+        <div class="card-header bg-transparent border-bottom border-secondary p-3 d-flex align-items-center justify-content-between">
+            <h5 class="fw-bold text-info m-0">📋 Tüm Randevu Kayıtları</h5>
+            <span class="badge bg-secondary text-light fw-normal fs-6">{{ randevular|length if randevular else 0 }} Kayıt Bulundu</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-custom text-center align-middle">
+                    <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th class="text-start">İşlem Türü</th>
+                            <th>T.C. No</th>
+                            <th>Ad Soyad</th>
+                            <th>Telefon</th>
+                            <th>Tarih & Saat</th>
+                            <th>Durum</th>
+                            <th>İşlem Yap</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if randevular %}
+                          {% for r in randevular %}
+                          <tr>
+                              <td class="fw-bold text-info">#{{ r.id }}</td>
+                              <td class="text-start"><span class="badge-type">{{ r.islem_turu }}</span></td>
+                              <td class="fw-medium">{{ r.tc_no }}</td>
+                              <td class="text-capitalize fw-semibold">{{ r.ad_soyad }}</td>
+                              <td>{{ r.telefon }}</td>
+                              <td class="fw-medium">{{ r.tarih }} - <span class="text-info">{{ r.saat }}</span></td>
+                              <td>
+                                  {% if r.durum == 'Geldi' %}
+                                      <span class="badge-geldi">Geldi</span>
+                                  {% elif r.durum == 'İptal Edildi' %}
+                                      <span class="badge-iptal">İptal Edildi</span>
+                                  {% else %}
+                                      <span class="badge-bekliyor">Bekliyor</span>
+                                  {% endif %}
+                              </td>
+                              <td>
+                                  <form action="/admin-durum-guncelle/{{ r.id }}" method="POST" class="d-flex align-items-center justify-content-center gap-2">
+                                      <select name="durum" class="form-select-custom">
+                                          <option value="Bekliyor" {% if r.durum == 'Bekliyor' %}selected{% endif %}>Bekliyor</option>
+                                          <option value="Geldi" {% if r.durum == 'Geldi' %}selected{% endif %}>Geldi</option>
+                                          <option value="İptal Edildi" {% if r.durum == 'İptal Edildi' %}selected{% endif %}>İptal Edildi</option>
+                                      </select>
+                                      <button type="submit" class="btn btn-save-custom shadow-sm">Kaydet</button>
+                                  </form>
+                              </td>
+                          </tr>
+                          {% endfor %}
+                        {% else %}
+                          <tr>
+                              <td colspan="8" class="text-center py-4 text-muted">Henüz randevu kaydı bulunmamaktadır.</td>
+                          </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Randevu Oluşturuldu - BUSKİ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="card shadow-sm mx-auto text-center" style="max-width: 500px;">
+            <div class="card-body p-5">
+                <div class="text-success mb-3" style="font-size: 50px;">✓</div>
+                <h2 class="card-title mb-3">Randevunuz Alındı!</h2>
+                <p class="text-muted">Sayın <strong>{{ ad_soyad }}</strong>, randevu talebiniz başarıyla kaydedilmiştir.</p>
+                
+                <div class="bg-light p-3 rounded text-start my-4 border">
+                    <p class="mb-1"><strong>İşlem:</strong> {{ islem }}</p>
+                    <p class="mb-1"><strong>Tarih:</strong> {{ tarih }}</p>
+                    <p class="mb-0"><strong>Saat:</strong> {{ saat }}</p>
+                </div>
+
+                <a href="/" class="btn btn-outline-primary">Yeni Randevu Al</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
